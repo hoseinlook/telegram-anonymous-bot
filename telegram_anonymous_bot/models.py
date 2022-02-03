@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pymysql
-from sqlalchemy import create_engine, Integer, Column, String, DateTime, ForeignKey, Text
+from sqlalchemy import create_engine, Integer, Column, String, DateTime, ForeignKey, Text, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -27,17 +27,23 @@ def session_factory():
 class User(Base):
     __tablename__ = 'users'
 
+    class STATUS:
+        ACTIVE = 'active'
+        DEACTIVATE = 'deactivate'
+
     id = Column(Integer(), primary_key=True, autoincrement=False)
-    access_token = Column(String(length=100))
-    name = Column(String(length=100))
+    access_hash = Column(String(length=100))
+    full_name = Column(String(length=100))
+    status = Column(Enum(STATUS.ACTIVE, STATUS.DEACTIVATE), nullable=False)
     username = Column(String(length=100))
     created_at = Column(DateTime(), default=datetime.now)
 
-    def __init__(self, user_id, name, access_token, created_at=None, username=None):
+    def __init__(self, user_id, full_name, access_hash, status, created_at=None, username=None):
         self.id = user_id
-        self.name = name
+        self.status = status
+        self.full_name = full_name
         self.username = username
-        self.access_token = access_token
+        self.access_hash = access_hash
         self.created_at = created_at
 
     def __repr__(self):
@@ -64,4 +70,4 @@ class Message(Base):
         self.created_at = created_at
 
     def __repr__(self):
-        return F"<msg-id={self.id} , from={self.from_user_id}-->to={self.to_user_id }>"
+        return F"<msg-id={self.id} , from={self.from_user_id}-->to={self.to_user_id}>"
