@@ -35,7 +35,7 @@ async def reset_btns(event, message):
 async def bad_command(event):
     user: telethon.tl.types.User = event.chat
     UserRepository().insert(User(user_id=user.id, access_hash=user.access_hash, first_name=user.first_name, last_name=user.last_name, username=user.username, status=User.STATUS.ACTIVE))
-    if event.message.message not in COMMANDS.command_list():
+    if event.message.message not in COMMANDS.command_list() and not str(event.message.message).startswith(COMMANDS.START):
         await reset_btns(event, MESSAGES.AFTER_BAD_COMMAND)
 
 
@@ -43,6 +43,10 @@ async def bad_command(event):
 async def start(event):
     user: telethon.tl.types.User = event.chat
     UserRepository().insert(User(user_id=user.id, access_hash=user.access_hash, first_name=user.first_name, last_name=user.last_name, username=user.username, status=User.STATUS.ACTIVE))
+    # if len(event.message.message.split()) >= 2:
+    #     target_user_id = event.message.message.split()[1]
+    #
+    # else:
     await reset_btns(event, MESSAGES.AFTER_START_COMMAND)
 
 
@@ -171,6 +175,7 @@ async def do_link(event):
     link = TEMPLATES_MESSAGES.YOUR_LINK(user.id)
     await reset_btns(event, TEMPLATES_MESSAGES.AFTER_GIVE_MY_LINK_COMMAND(user.first_name, link))
     await reset_btns(event, MESSAGES.AFTER_GIVE_MY_LINK_COMMAND_EXTRA)
+
 
 @client.on(events.NewMessage(pattern=COMMANDS.INSTAGRAM))
 async def do_link(event):
