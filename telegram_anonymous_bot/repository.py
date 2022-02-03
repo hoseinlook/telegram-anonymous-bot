@@ -1,8 +1,7 @@
 import abc
-
 from sqlalchemy.exc import DataError
 from sqlalchemy.orm import Session
-
+import sqlalchemy.exc
 from .models import Message, User, session_factory
 
 
@@ -29,6 +28,9 @@ class BaseRepository(abc.ABC):
         try:
             self.session.add(obj)
             self.session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            self.session.rollback()
+            pass
         except DataError as e:
             self.session.rollback()
             raise e
