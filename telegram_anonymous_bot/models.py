@@ -67,16 +67,18 @@ class Message(Base):
     id = Column(Integer(), primary_key=True, autoincrement=True, nullable=False)
     from_user_id = Column(Integer, ForeignKey(User.id))
     to_user_id = Column(Integer, ForeignKey(User.id))
+    msg_id = Column(Integer, nullable=True, default=None)
     message = Column(Text(), nullable=True)
     status = Column(Enum(STATUS.CREATED, STATUS.SENT, STATUS.FAILED, STATUS.SEEN), default=STATUS.CREATED)
     created_at = Column(DateTime(), default=datetime.now, nullable=False)
 
-    def __init__(self, from_user_id: int, to_user_id: int, message: str, created_at: datetime = None):
+    def __init__(self, from_user_id: int, to_user_id: int, message: str, msg_id: int, created_at: datetime = None):
         self.id = None
         self.from_user_id = from_user_id
         self.to_user_id = to_user_id
         self.message = message
         self.created_at = created_at
+        self.msg_id = msg_id
 
     def __repr__(self):
         return F"<msg-id={self.id} , from={self.from_user_id}-->to={self.to_user_id}>"

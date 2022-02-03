@@ -2,7 +2,9 @@ import asyncio
 import datetime
 import re
 from datetime import datetime
-from typing import Union
+from typing import Union, List
+
+import length as length
 import telethon.tl.types
 from telethon import TelegramClient, events, Button
 from telethon.events import NewMessage
@@ -69,13 +71,16 @@ async def do_connection(event):
 
             await conv.send_message(TEMPLATES_MESSAGES.READY_TO_SEND_MESSAGE(the_user.first_name))
             response = await conv.get_response()
-            new_message = Message(from_user_id=event.chat.id, to_user_id=the_user.id, message=response.message)
+            if response.message == COMMANDS.CANCEL_CONNECT: raise CanceledError()
+            new_message = Message(from_user_id=event.chat.id, to_user_id=the_user.id, message=response.message, msg_id=response.id)
             MessageRepository().insert(new_message)
             try:
                 target_entity = await client.get_entity(telethon.tl.types.InputPeerUser(user_id=the_user.id, access_hash=int(the_user.access_hash)))
-                await client.send_message(target_entity, response.message)
+                await client.send_message(target_entity, MESSAGES.GET_MESSAGE_INSTRUCTION)
+                await reset_btns(event, MESSAGES.SEND_SUCCESSFULLY)
                 new_message.status = Message.STATUS.SENT
                 MessageRepository().commit()
+                return
             except Exception as e:
                 new_message.status = Message.STATUS.FAILED
                 MessageRepository().commit()
@@ -89,6 +94,25 @@ async def do_connection(event):
             print("error ", type(e), e)
             await reset_btns(event, MESSAGES.USER_NOT_FOUND)
             return
+
+
+@client.on(events.NewMessage(pattern=COMMANDS.GET_UNSEEN_MESSAGES))
+async def get_new_messages(event):
+    user_id = event.chat.id
+    message_list: List[Message] = list(MessageRepository().all_unseen_messages(user_id))
+    if len(message_list) == 0:
+        await reset_btns(event, MESSAGES.NO_ANY_MESSAGES)
+        return
+
+    for message_orm in message_list:
+        from_user = UserRepository().get_user_with_id(message_orm.from_user_id)
+
+
+@client.on(events.CallbackQuery())
+async def handel_callback(event):
+    print("DATA")
+    print(event.data)
+    print(event.data.decode('utf8'))
 
 
 @client.on(events.NewMessage(pattern=COMMANDS.CANCEL_CONNECT))
