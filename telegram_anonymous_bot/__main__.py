@@ -31,6 +31,14 @@ async def reset_btns(event, message):
     ])
 
 
+@client.on(events.NewMessage())
+async def bad_command(event):
+    user: telethon.tl.types.User = event.chat
+    UserRepository().insert(User(user_id=user.id, access_hash=user.access_hash, first_name=user.first_name, last_name=user.last_name, username=user.username, status=User.STATUS.ACTIVE))
+    if event.message.message not in COMMANDS.command_list():
+        await reset_btns(event, MESSAGES.AFTER_BAD_COMMAND)
+
+
 @client.on(events.NewMessage(pattern=COMMANDS.START))
 async def start(event):
     user: telethon.tl.types.User = event.chat

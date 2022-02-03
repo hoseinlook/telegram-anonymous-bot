@@ -1,6 +1,7 @@
 import os
 from os import getenv
 from pathlib import Path
+from typing import List
 
 from dotenv import load_dotenv
 
@@ -38,6 +39,10 @@ class COMMANDS:
     LINK = '/link'
     CANCEL_CONNECT = 'انصراف'
     GET_UNSEEN_MESSAGES = '/newmsg'
+
+    @classmethod
+    def command_list(cls) -> List[str]:
+        return [getattr(COMMANDS, the_attr) for the_attr in dir(COMMANDS) if not the_attr.startswith('__')]
 
 
 # messages
@@ -79,7 +84,7 @@ class MESSAGES:
 
     BTN_ANSWER = '✍️ پاسخ'
     BTN_BLOCK = '⛔️ بلاک'
-    WAITING_TO_ANSWER ="☝️ در حال پاسخ دادن به فرستنده این پیام هستی ... ؛ منتظریم بفرستی :)"
+    WAITING_TO_ANSWER = "☝️ در حال پاسخ دادن به فرستنده این پیام هستی ... ؛ منتظریم بفرستی :)"
 
 
 class TEMPLATES_MESSAGES:
