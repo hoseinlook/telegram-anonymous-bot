@@ -1,4 +1,6 @@
 import abc
+
+from sqlalchemy import and_
 from sqlalchemy.exc import DataError
 from sqlalchemy.orm import Session
 import sqlalchemy.exc
@@ -67,6 +69,12 @@ class UserRepository(BaseRepository):
 @singleton
 class MessageRepository(BaseRepository):
     _Model = Message
+
+    def get_with_message_id (self,message_id):
+        return self.session.query(Message).filter(Message.id == message_id).first()
+
+    def all_unseen_messages(self, user_id):
+        return self.session.query(Message).filter(and_(Message.to_user_id == user_id, Message.status == Message.STATUS.SENT))
 
 
 if __name__ == '__main__':

@@ -9,6 +9,7 @@ import telethon.tl.types
 from telethon import TelegramClient, events, Button
 from telethon.events import NewMessage
 from telethon.events.inlinequery import InlineQuery
+from telethon.tl.custom import InlineBuilder
 
 from .exceptions import CanceledError
 from .models import User, Message
@@ -105,14 +106,47 @@ async def get_new_messages(event):
         return
 
     for message_orm in message_list:
-        from_user = UserRepository().get_user_with_id(message_orm.from_user_id)
+        sender_user = UserRepository().get_user_with_id(message_orm.from_user_id)
+        sender_entity = await client.get_entity(telethon.tl.types.InputPeerUser(user_id=sender_user.id, access_hash=int(sender_user.access_hash)))
+        await client.send_message(entity=sender_entity, message=MESSAGES.YOUR_MSG_WAS_READ, reply_to=message_orm.msg_id)
+        # builder: InlineBuilder = event.builder
+        await event.respond(F"‌                                                 ‌ ‌‌‌    ‌‌\n{message_orm.message}", buttons=[
+            [Button.inline(MESSAGES.BTN_BLOCK, data=1), Button.inline(MESSAGES.BTN_ANSWER, data=TEMPLATES_MESSAGES.RESPOND_TO_MESSAGE(message_orm.id))],
+        ])
+        message_orm.status = Message.STATUS.SEEN
+        MessageRepository().commit()
 
 
 @client.on(events.CallbackQuery())
 async def handel_callback(event):
     print("DATA")
     print(event.data)
-    print(event.data.decode('utf8'))
+    body = event.data.decode('utf8')
+    print(body)
+    if body.startswith(TEMPLATES_MESSAGES.RESPOND_LIKE):
+        message_orm_id = int(body.split('_')[-1])
+        sender_message_orm = MessageRepository().get_with_message_id(message_orm_id)
+
+        async with client.conversation(event.chat) as conv:
+            await conv.send_message(MESSAGES.WAITING_TO_ANSWER, buttons=[Button.text(COMMANDS.CANCEL_CONNECT, resize=True, single_use=True)])
+            response = await conv.get_response()
+            if response.message == COMMANDS.CANCEL_CONNECT: return
+            new_message = Message(from_user_id=sender_message_orm.to_user_id, to_user_id=sender_message_orm.from_user_id, message=response.message, msg_id=response.id)
+            MessageRepository().insert(new_message)
+            try:
+                the_user = UserRepository().get_user_with_id(new_message.to_user_id)
+                target_entity = await client.get_entity(telethon.tl.types.InputPeerUser(user_id=the_user.id, access_hash=int(the_user.access_hash)))
+                await client.send_message(target_entity, MESSAGES.GET_MESSAGE_INSTRUCTION)
+                await reset_btns(event, MESSAGES.SEND_SUCCESSFULLY)
+                new_message.status = Message.STATUS.SENT
+                MessageRepository().commit()
+                return
+            except Exception as e:
+                new_message.status = Message.STATUS.FAILED
+                MessageRepository().commit()
+                print('SENDING ERROR:', type(e), e)
+                await reset_btns(event, MESSAGES.YOUR_TARGET_STOPPED_THE_BOT)
+                return
 
 
 @client.on(events.NewMessage(pattern=COMMANDS.CANCEL_CONNECT))
