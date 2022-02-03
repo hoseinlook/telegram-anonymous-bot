@@ -1,0 +1,86 @@
+version: '3.5'
+
+services:
+  telegram_anonymous_bot:
+    build:
+      context: .
+    volumes:
+      - .env:/code/.env
+    env_file:
+      - .env
+    command: [ "python" , "-m" , "telegram_anonymous_bot" ]
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "10"
+    depends_on:
+      - mysql
+      - torproxy
+    networks:
+      - backend
+
+  torproxy:
+    deploy:
+      replicas: 1
+    image: dperson/torproxy
+    environment:
+      - TOR_MaxCircuitDirtiness=10
+      - TOR_NewCircuitPeriod=10
+    ports:
+      - "8117:8118"
+  #    - "9011:9090"
+
+
+  mysql:
+    image: mysql:8.0
+    container_name: telegram_anonymous_bot_mysql
+    hostname: telegram_anonymous_bot_mysql
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - ${MYSQL_PORT}:3306
+    volumes:
+      - ./mysql/logs/:/var/log/mysql/
+      - ./mysql/data/:/var/lib/mysql/
+      - ./mysql/initdb.d/:/docker-entrypoint-initdb.d/
+      - ./mysql/extra/:/extra/
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "10"
+    networks:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: telegram_anonymous_bot_phpmyadmin
+    hostname: telegram_anonymous_bot_phpmyadmin
+    restart: always
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+    environment:
+      PMA_HOST: mysql
+    ports:
+      - ${PHPMYADMIN_PORT}:80
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "10"
+    networks:
+      - backend
+
+
+networks:
+  backend:
+    name: telegram_anonymous_bot_network
