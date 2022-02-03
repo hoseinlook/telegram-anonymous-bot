@@ -31,27 +31,28 @@ async def reset_btns(event, message):
     ])
 
 
-@client.on(events.NewMessage())
-async def bad_command(event):
-    user: telethon.tl.types.User = event.chat
-    UserRepository().insert(User(user_id=user.id, access_hash=user.access_hash, first_name=user.first_name, last_name=user.last_name, username=user.username, status=User.STATUS.ACTIVE))
-    if event.message.message not in COMMANDS.command_list() and not str(event.message.message).startswith(COMMANDS.START):
-        await reset_btns(event, MESSAGES.AFTER_BAD_COMMAND)
+# @client.on(events.NewMessage())
+# async def bad_command(event):
+#     user: telethon.tl.types.User = event.chat
+#     UserRepository().insert(User(user_id=user.id, access_hash=user.access_hash, first_name=user.first_name, last_name=user.last_name, username=user.username, status=User.STATUS.ACTIVE))
+#     if event.message.message not in COMMANDS.command_list() and not str(event.message.message).startswith(COMMANDS.START):
+#         await reset_btns(event, MESSAGES.AFTER_BAD_COMMAND)
 
 
 @client.on(events.NewMessage(pattern=COMMANDS.START))
 async def start(event):
     user: telethon.tl.types.User = event.chat
     UserRepository().insert(User(user_id=user.id, access_hash=user.access_hash, first_name=user.first_name, last_name=user.last_name, username=user.username, status=User.STATUS.ACTIVE))
-    # if len(event.message.message.split()) >= 2:
-    #     target_user_id = event.message.message.split()[1]
-    #
-    # else:
-    await reset_btns(event, MESSAGES.AFTER_START_COMMAND)
+    if len(event.message.message.split()) >= 2:
+        target_user_id = event.message.message.split()[1]
+        user = UserRepository().get_user_with_id(target_user_id)
+        await do_connection(event , user)
+    else:
+        await reset_btns(event, MESSAGES.AFTER_START_COMMAND)
 
 
 @client.on(events.NewMessage(pattern=COMMANDS.CONNECT))
-async def do_connection(event):
+async def do_connection(event ,the_user=None):
     async def loop_to_get_target(conv) -> Union[User, None]:
         while True:
             response = await conv.get_response()
@@ -77,7 +78,8 @@ async def do_connection(event):
         await conv.send_message(MESSAGES.AFTER_CONNECT_COMMAND, buttons=[Button.text(COMMANDS.CANCEL_CONNECT, resize=True, single_use=True)])
 
         try:
-            the_user: Union[User, None] = await loop_to_get_target(conv)
+            if the_user is None:
+                the_user: Union[User, None] = await loop_to_get_target(conv)
             if the_user is None:
                 await reset_btns(event, MESSAGES.USER_NOT_FOUND)
                 return
