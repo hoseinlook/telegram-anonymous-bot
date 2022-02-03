@@ -1,5 +1,4 @@
 import abc
-
 from sqlalchemy import and_
 from sqlalchemy.exc import DataError
 from sqlalchemy.orm import Session

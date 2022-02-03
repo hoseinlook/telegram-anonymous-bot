@@ -1,10 +1,8 @@
 from datetime import datetime
-
 import pymysql
 from sqlalchemy import create_engine, Integer, Column, String, DateTime, ForeignKey, Text, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
 from . import config
 
 pymysql.install_as_MySQLdb()

@@ -2,7 +2,6 @@ import os
 from os import getenv
 from pathlib import Path
 from typing import List
-
 from dotenv import load_dotenv
 
 load_dotenv()

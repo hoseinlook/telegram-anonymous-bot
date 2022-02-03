@@ -1,20 +1,11 @@
-import asyncio
-import datetime
 import re
-from datetime import datetime
 from typing import Union, List
-
-import length as length
 import telethon.tl.types
 from telethon import TelegramClient, events, Button
-from telethon.events import NewMessage
-from telethon.events.inlinequery import InlineQuery
-from telethon.tl.custom import InlineBuilder
-
+from .config import API_KEY, API_ID, BOT_TOKEN, PROXY, PATH_SESSION, COMMANDS, MESSAGES, TEMPLATES_MESSAGES
 from .exceptions import CanceledError
 from .models import User, Message
 from .repository import UserRepository, MessageRepository
-from .config import API_KEY, API_ID, BOT_TOKEN, PROXY, PATH_SESSION, COMMANDS, MESSAGES, TEMPLATES_MESSAGES
 
 user_repository = UserRepository()
 message_repository = MessageRepository()
@@ -46,13 +37,13 @@ async def start(event):
     if len(event.message.message.split()) >= 2:
         target_user_id = event.message.message.split()[1]
         user = UserRepository().get_user_with_id(target_user_id)
-        await do_connection(event , user)
+        await do_connection(event, user)
     else:
         await reset_btns(event, MESSAGES.AFTER_START_COMMAND)
 
 
 @client.on(events.NewMessage(pattern=COMMANDS.CONNECT))
-async def do_connection(event ,the_user=None):
+async def do_connection(event, the_user=None):
     async def loop_to_get_target(conv) -> Union[User, None]:
         while True:
             response = await conv.get_response()
