@@ -14,9 +14,11 @@ if not PATH_SESSION.exists():
 
 # telethon configs
 BOT_TOKEN = getenv('BOT_TOKEN')
+YOUR_BOT_USERNAME = getenv('YOUR_BOT_USERNAME')
 API_ID = int(getenv('API_ID'))
 API_KEY = getenv('API_KEY')
 
+# proxy for connecting
 PROXY = (getenv('PROXY_PROTOCOL', 'socks5'), getenv('PROXY_HOST', 'localhost'), int(getenv('PROXY_PORT', 9050)))
 
 # sql
@@ -33,11 +35,12 @@ class COMMANDS:
     CONNECT = "💌 به مخاطب خاصم وصلم کن!"
     GIVE_MY_LINK = 'لینک ناشناس من 📬'
     INSTAGRAM = '/Instagram'
+    CANCEL_CONNECT = 'انصراف'
 
 
 # messages
 class MESSAGES:
-    START = """حله!
+    AFTER_START_COMMAND = """حله!
 
 چه کاری برات انجام بدم؟"""
     AFTER_BAD_COMMAND = """متوجه نشدم :/
