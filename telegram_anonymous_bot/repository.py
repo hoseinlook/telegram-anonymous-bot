@@ -60,6 +60,9 @@ class BaseRepository(abc.ABC):
 class UserRepository(BaseRepository):
     _Model = User
 
+    def get_user_with_id(self, user_id):
+        return self.session.query(User).filter(User.id == user_id).first()
+
 
 @singleton
 class MessageRepository(BaseRepository):

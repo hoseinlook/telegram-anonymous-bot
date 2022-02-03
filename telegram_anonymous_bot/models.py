@@ -33,15 +33,17 @@ class User(Base):
 
     id = Column(Integer(), primary_key=True, autoincrement=False)
     access_hash = Column(String(length=100))
-    full_name = Column(String(length=100))
+    first_name = Column(String(length=100))
+    last_name = Column(String(length=100))
     status = Column(Enum(STATUS.ACTIVE, STATUS.DEACTIVATE), nullable=False)
     username = Column(String(length=100))
     created_at = Column(DateTime(), default=datetime.now)
 
-    def __init__(self, user_id, full_name, access_hash, status, created_at=None, username=None):
+    def __init__(self, user_id, last_name, first_name, access_hash, status, created_at=None, username=None):
         self.id = user_id
         self.status = status
-        self.full_name = full_name
+        self.last_name = last_name
+        self.first_name = first_name
         self.username = username
         self.access_hash = access_hash
         self.created_at = created_at
@@ -56,10 +58,17 @@ class User(Base):
 class Message(Base):
     __tablename__ = 'messages'
 
+    class STATUS:
+        CREATED = 'created'
+        SENT = "sent"
+        SEEN = "seen"
+        FAILED = "failed"
+
     id = Column(Integer(), primary_key=True, autoincrement=True, nullable=False)
     from_user_id = Column(Integer, ForeignKey(User.id))
     to_user_id = Column(Integer, ForeignKey(User.id))
     message = Column(Text(), nullable=True)
+    status = Column(Enum(STATUS.CREATED, STATUS.SENT, STATUS.FAILED, STATUS.SEEN), default=STATUS.CREATED)
     created_at = Column(DateTime(), default=datetime.now, nullable=False)
 
     def __init__(self, from_user_id: int, to_user_id: int, message: str, created_at: datetime = None):

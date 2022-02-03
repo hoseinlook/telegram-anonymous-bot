@@ -1,0 +1,2 @@
+class CanceledError(Exception):
+    pass
