@@ -86,6 +86,12 @@ class MESSAGES:
     BTN_BLOCK = '⛔️ بلاک'
     WAITING_TO_ANSWER = "☝️ در حال پاسخ دادن به فرستنده این پیام هستی ... ؛ منتظریم بفرستی :)"
 
+    INSTAGRAM_DESCRIPTION = """میخوای دنبال کننده های اینستاگرامت برات پیام ناشناش بفرستن؟ 🤔
+
+کافیه لینک ناشناس رو کپی کنی و توی  پروفایلت وارد کنی
+
+لینک مخصوصت 👇"""
+
 
 class TEMPLATES_MESSAGES:
     @staticmethod
@@ -108,3 +114,7 @@ class TEMPLATES_MESSAGES:
     @staticmethod
     def RESPOND_TO_MESSAGE(message_orm_id, ):
         return f"{TEMPLATES_MESSAGES.RESPOND_LIKE}_{message_orm_id}"
+
+    @staticmethod
+    def YOUR_LINK(user_id):
+        return f'https://t.me/{YOUR_BOT_USERNAME}?start={user_id}'

@@ -157,6 +157,29 @@ async def handel_callback(event):
                 return
 
 
+@client.on(events.NewMessage(pattern=COMMANDS.LINK))
+async def do_link(event):
+    user = UserRepository().get_user_with_id(event.chat.id)
+    link = TEMPLATES_MESSAGES.YOUR_LINK(user.id)
+    await reset_btns(event, TEMPLATES_MESSAGES.AFTER_GIVE_MY_LINK_COMMAND(user.first_name, link))
+    await reset_btns(event, MESSAGES.AFTER_GIVE_MY_LINK_COMMAND_EXTRA)
+
+
+@client.on(events.NewMessage(pattern=COMMANDS.GIVE_MY_LINK))
+async def do_link(event):
+    user = UserRepository().get_user_with_id(event.chat.id)
+    link = TEMPLATES_MESSAGES.YOUR_LINK(user.id)
+    await reset_btns(event, TEMPLATES_MESSAGES.AFTER_GIVE_MY_LINK_COMMAND(user.first_name, link))
+    await reset_btns(event, MESSAGES.AFTER_GIVE_MY_LINK_COMMAND_EXTRA)
+
+@client.on(events.NewMessage(pattern=COMMANDS.INSTAGRAM))
+async def do_link(event):
+    user = UserRepository().get_user_with_id(event.chat.id)
+    link = TEMPLATES_MESSAGES.YOUR_LINK(user.id)
+    await reset_btns(event, MESSAGES.INSTAGRAM_DESCRIPTION)
+    await reset_btns(event, link)
+
+
 @client.on(events.NewMessage(pattern=COMMANDS.CANCEL_CONNECT))
 async def do_cancel(event):
     await start(event)
