@@ -6,6 +6,7 @@ services:
       context: .
     volumes:
       - .env:/code/.env
+      - ./sessions:/code/sessions
     env_file:
       - .env
     command: [ "python" , "-m" , "telegram_anonymous_bot" ]
@@ -16,6 +17,7 @@ services:
     depends_on:
       - mysql
       - torproxy
+      - phpmyadmin
     networks:
       - backend
 
@@ -29,6 +31,8 @@ services:
     ports:
       - "8117:8118"
   #    - "9011:9090"
+    networks:
+      - backend
 
 
   mysql:
