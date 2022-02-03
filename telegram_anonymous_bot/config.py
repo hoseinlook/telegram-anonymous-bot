@@ -20,7 +20,7 @@ API_KEY = getenv('API_KEY')
 PROXY = (getenv('PROXY_PROTOCOL', 'socks5'), getenv('PROXY_HOST', 'localhost'), int(getenv('PROXY_PORT', 9050)))
 
 # sql
-MYSQL_DB = getenv('MYSQL_DB', 'database')
+MYSQL_DB = getenv('MYSQL_DATABASE', 'database')
 MYSQL_USER = getenv('MYSQL_USER', 'user')
 MYSQL_PASSWORD = getenv('MYSQL_PASSWORD', 'password')
 MYSQL_PORT = int(getenv('MYSQL_PORT', '3306'))
