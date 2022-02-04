@@ -9,7 +9,7 @@ from .repository import UserRepository, MessageRepository
 
 user_repository = UserRepository()
 message_repository = MessageRepository()
-client = TelegramClient(str(PATH_SESSION.joinpath('bot')), API_ID, API_KEY, proxy=PROXY, connection_retries=10000).start(
+client = TelegramClient(str(PATH_SESSION.joinpath('bot')), API_ID, API_KEY, proxy=PROXY, connection_retries=100000).start(
     bot_token=BOT_TOKEN)
 
 print('BOT CONNECTED...')
