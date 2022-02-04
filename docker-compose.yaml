@@ -6,7 +6,6 @@ services:
       context: .
     volumes:
       - .env:/code/.env
-      - ./sessions:/code/sessions
     env_file:
       - .env
     command: [ "python" , "-m" , "telegram_anonymous_bot" ]
@@ -25,9 +24,6 @@ services:
     deploy:
       replicas: 1
     image: dperson/torproxy
-    environment:
-      - TOR_MaxCircuitDirtiness=10
-      - TOR_NewCircuitPeriod=10
     ports:
       - "8117:8118"
   #    - "9011:9090"
@@ -47,6 +43,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_HOST: '%'
     ports:
       - ${MYSQL_PORT}:3306
     volumes:
