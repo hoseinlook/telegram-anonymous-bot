@@ -2,6 +2,7 @@ version: '3.5'
 
 services:
   telegram_anonymous_bot:
+    restart: always
     build:
       context: .
     volumes:
@@ -21,8 +22,9 @@ services:
       - backend
 
   torproxy:
+    restart: always
     deploy:
-      replicas: 1
+      replicas: 5
     image: dperson/torproxy
     ports:
       - "8118:8118"
@@ -62,10 +64,10 @@ services:
       - backend
 
   phpmyadmin:
+    restart: always
     image: phpmyadmin:latest
     container_name: telegram_anonymous_bot_phpmyadmin
     hostname: telegram_anonymous_bot_phpmyadmin
-    restart: always
     depends_on:
       - mysql
     env_file:
