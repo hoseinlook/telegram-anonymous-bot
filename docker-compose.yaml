@@ -25,8 +25,8 @@ services:
       replicas: 1
     image: dperson/torproxy
     ports:
-      - "8117:8118"
-  #    - "9011:9090"
+      - "8118:8118"
+  #    - "9050:9050"
     networks:
       - backend
 
