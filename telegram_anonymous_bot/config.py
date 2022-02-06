@@ -9,8 +9,11 @@ load_dotenv()
 # PATH
 PATH_ROOT = Path(os.path.abspath(__file__)).parent.parent
 PATH_SESSION = PATH_ROOT.joinpath('sessions')
+PATH_STORAGE = PATH_ROOT.joinpath('storage')
 if not PATH_SESSION.exists():
     PATH_SESSION.mkdir()
+if not PATH_STORAGE.exists():
+    PATH_STORAGE.mkdir()
 
 # telethon configs
 BOT_TOKEN = getenv('BOT_TOKEN')

@@ -7,6 +7,7 @@ services:
       context: .
     volumes:
       - .env:/code/.env
+      - ./storage:/code/storage
     env_file:
       - .env
     command: [ "python" , "-m" , "telegram_anonymous_bot" ]

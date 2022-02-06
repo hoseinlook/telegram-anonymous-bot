@@ -4,15 +4,17 @@ import telethon.tl.types
 from telethon import TelegramClient, events, Button
 from .config import API_KEY, API_ID, BOT_TOKEN, PROXY, PATH_SESSION, COMMANDS, MESSAGES, TEMPLATES_MESSAGES
 from .exceptions import CanceledError
+from .logger import error_logger, info_log, TELEGRAM_LOG_LEVEL
 from .models import User, Message
 from .repository import UserRepository, MessageRepository
 
 user_repository = UserRepository()
 message_repository = MessageRepository()
+info_log.log(level=TELEGRAM_LOG_LEVEL, msg='BOT CONNECTED TO SQLDB ...')
 client = TelegramClient(str(PATH_SESSION.joinpath('bot')), API_ID, API_KEY, proxy=PROXY, connection_retries=100000).start(
     bot_token=BOT_TOKEN)
 
-print('BOT CONNECTED...')
+info_log.log(level=TELEGRAM_LOG_LEVEL, msg='BOT CONNECTED TO TELEGRAM ...')
 
 
 async def reset_btns(event, message):
@@ -33,6 +35,7 @@ async def reset_btns(event, message):
 @client.on(events.NewMessage(pattern=COMMANDS.START))
 async def start(event):
     user: telethon.tl.types.User = event.chat
+    info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{user} clicked {COMMANDS.START}')
     UserRepository().insert(User(user_id=user.id, access_hash=user.access_hash, first_name=user.first_name, last_name=user.last_name, username=user.username, status=User.STATUS.ACTIVE))
     if len(event.message.message.split()) >= 2:
         target_user_id = event.message.message.split()[1]
@@ -53,8 +56,7 @@ async def do_connection(event, the_user=None):
                 target_user = await client.get_entity(username)
                 target_user_id = target_user.id
             else:
-                print('WITH forwarding')
-                print(response)
+
                 if not hasattr(response, "forward") or response.forward is None:
                     await conv.send_message(MESSAGES.RETRY_CONNECT)
                     continue
@@ -65,6 +67,7 @@ async def do_connection(event, the_user=None):
             user = UserRepository().get_user_with_id(target_user_id)
             return user
 
+    info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{event.chat} clicked {COMMANDS.CONNECT}')
     async with client.conversation(event.chat) as conv:
         await conv.send_message(MESSAGES.AFTER_CONNECT_COMMAND, buttons=[Button.text(COMMANDS.CANCEL_CONNECT, resize=True, single_use=True)])
 
@@ -89,6 +92,7 @@ async def do_connection(event, the_user=None):
                 return
             except Exception as e:
                 new_message.status = Message.STATUS.FAILED
+                error_logger.error(f"send_anonymous_message_error {type(e)}-{e}")
                 MessageRepository().commit()
                 print('SENDING ERROR:', type(e), e)
                 await reset_btns(event, MESSAGES.YOUR_TARGET_STOPPED_THE_BOT)
@@ -97,13 +101,14 @@ async def do_connection(event, the_user=None):
         except CanceledError as e:
             pass
         except Exception as e:
-            print("error ", type(e), e)
+            error_logger.error(f"do_connection_error {type(e)}-{e}")
             await reset_btns(event, MESSAGES.USER_NOT_FOUND)
             return
 
 
 @client.on(events.NewMessage(pattern=COMMANDS.GET_UNSEEN_MESSAGES))
 async def get_new_messages(event):
+    info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{event.chat} clicked {COMMANDS.GET_UNSEEN_MESSAGES}')
     user_id = event.chat.id
     message_list: List[Message] = list(MessageRepository().all_unseen_messages(user_id))
     if len(message_list) == 0:
@@ -124,10 +129,8 @@ async def get_new_messages(event):
 
 @client.on(events.CallbackQuery())
 async def handel_callback(event):
-    print("DATA")
-    print(event.data)
     body = event.data.decode('utf8')
-    print(body)
+    info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{event.chat} clicked a callback btn - btn_body={body}')
     if body.startswith(TEMPLATES_MESSAGES.RESPOND_LIKE):
         message_orm_id = int(body.split('_')[-1])
         sender_message_orm = MessageRepository().get_with_message_id(message_orm_id)
@@ -148,6 +151,7 @@ async def handel_callback(event):
                 return
             except Exception as e:
                 new_message.status = Message.STATUS.FAILED
+                error_logger.error(f"{type(e)}-{e}-{body}")
                 MessageRepository().commit()
                 print('SENDING ERROR:', type(e), e)
                 await reset_btns(event, MESSAGES.YOUR_TARGET_STOPPED_THE_BOT)
@@ -156,6 +160,7 @@ async def handel_callback(event):
 
 @client.on(events.NewMessage(pattern=COMMANDS.LINK))
 async def do_link(event):
+    info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{event.chat} clicked {COMMANDS.LINK}')
     user = UserRepository().get_user_with_id(event.chat.id)
     link = TEMPLATES_MESSAGES.YOUR_LINK(user.id)
     await reset_btns(event, TEMPLATES_MESSAGES.AFTER_GIVE_MY_LINK_COMMAND(user.first_name, link))
@@ -164,6 +169,7 @@ async def do_link(event):
 
 @client.on(events.NewMessage(pattern=COMMANDS.GIVE_MY_LINK))
 async def do_link(event):
+    info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{event.chat} clicked {COMMANDS.GIVE_MY_LINK}')
     user = UserRepository().get_user_with_id(event.chat.id)
     link = TEMPLATES_MESSAGES.YOUR_LINK(user.id)
     await reset_btns(event, TEMPLATES_MESSAGES.AFTER_GIVE_MY_LINK_COMMAND(user.first_name, link))
@@ -172,6 +178,7 @@ async def do_link(event):
 
 @client.on(events.NewMessage(pattern=COMMANDS.INSTAGRAM))
 async def do_link(event):
+    info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{event.chat} clicked {COMMANDS.INSTAGRAM}')
     user = UserRepository().get_user_with_id(event.chat.id)
     link = TEMPLATES_MESSAGES.YOUR_LINK(user.id)
     await reset_btns(event, MESSAGES.INSTAGRAM_DESCRIPTION)
@@ -180,6 +187,7 @@ async def do_link(event):
 
 @client.on(events.NewMessage(pattern=COMMANDS.CANCEL_CONNECT))
 async def do_cancel(event):
+    info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{event.chat} clicked {COMMANDS.CANCEL_CONNECT}')
     await start(event)
 
 
