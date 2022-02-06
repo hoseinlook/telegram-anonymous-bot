@@ -80,3 +80,18 @@ class Message(Base):
 
     def __repr__(self):
         return F"<msg-id={self.id} , from={self.from_user_id}-->to={self.to_user_id}>"
+
+
+class Action(Base):
+    __tablename__ = 'actions'
+
+    id = Column(Integer(), primary_key=True, autoincrement=True, nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id))
+    action = Column(Text(), nullable=False)
+    msg_id = Column(Integer(), nullable=False)
+    created_at = Column(DateTime(), default=datetime.now, nullable=False)
+
+    def __init__(self, user_id: int, action: str, msg_id: int):
+        self.user_id = user_id
+        self.action = action
+        self.msg_id = msg_id

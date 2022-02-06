@@ -3,7 +3,7 @@ from sqlalchemy import and_
 from sqlalchemy.exc import DataError
 from sqlalchemy.orm import Session
 import sqlalchemy.exc
-from .models import Message, User, session_factory
+from .models import Message, User, session_factory, Action
 
 
 def singleton(class_):
@@ -69,11 +69,15 @@ class UserRepository(BaseRepository):
 class MessageRepository(BaseRepository):
     _Model = Message
 
-    def get_with_message_id (self,message_id):
+    def get_with_message_id(self, message_id):
         return self.session.query(Message).filter(Message.id == message_id).first()
 
     def all_unseen_messages(self, user_id):
         return self.session.query(Message).filter(and_(Message.to_user_id == user_id, Message.status == Message.STATUS.SENT))
+
+
+class ActionRepository(BaseRepository):
+    _Model = Action
 
 
 if __name__ == '__main__':
