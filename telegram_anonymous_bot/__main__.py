@@ -35,9 +35,9 @@ async def reset_btns(event, message):
 @client.on(events.NewMessage(pattern=COMMANDS.START))
 async def start(event):
     user: telethon.tl.types.User = event.chat
-    info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{user} clicked {COMMANDS.START}')
     UserRepository().insert(User(user_id=user.id, access_hash=user.access_hash, first_name=user.first_name, last_name=user.last_name, username=user.username, status=User.STATUS.ACTIVE))
     if len(event.message.message.split()) >= 2:
+        info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{user} clicked {COMMANDS.START}')
         target_user_id = event.message.message.split()[1]
         user = UserRepository().get_user_with_id(target_user_id)
         await do_connection(event, user)
