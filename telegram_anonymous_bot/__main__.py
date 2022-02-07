@@ -121,9 +121,12 @@ async def get_new_messages(event):
         await client.send_message(entity=sender_entity, message=MESSAGES.YOUR_MSG_WAS_READ, reply_to=message_orm.msg_id)
         # builder: InlineBuilder = event.builder
         the_message = await  client.get_messages(sender_entity, ids=message_orm.msg_id)
+        if len(the_message.message) < 10:
+            the_message.message = F"‌                                                 ‌ ‌‌‌    ‌‌\n{the_message.message}"
         await event.respond(the_message, buttons=[
             [Button.inline(MESSAGES.BTN_BLOCK, data=1), Button.inline(MESSAGES.BTN_ANSWER, data=TEMPLATES_MESSAGES.RESPOND_TO_MESSAGE(message_orm.id))],
         ])
+
         message_orm.status = Message.STATUS.SEEN
         MessageRepository().commit()
 
