@@ -120,7 +120,8 @@ async def get_new_messages(event):
         sender_entity = await client.get_entity(telethon.tl.types.InputPeerUser(user_id=sender_user.id, access_hash=int(sender_user.access_hash)))
         await client.send_message(entity=sender_entity, message=MESSAGES.YOUR_MSG_WAS_READ, reply_to=message_orm.msg_id)
         # builder: InlineBuilder = event.builder
-        await event.respond(F"‌                                                 ‌ ‌‌‌    ‌‌\n{message_orm.message}", buttons=[
+        the_message = await  client.get_messages(sender_entity, ids=message_orm.msg_id)
+        await event.respond(the_message, buttons=[
             [Button.inline(MESSAGES.BTN_BLOCK, data=1), Button.inline(MESSAGES.BTN_ANSWER, data=TEMPLATES_MESSAGES.RESPOND_TO_MESSAGE(message_orm.id))],
         ])
         message_orm.status = Message.STATUS.SEEN
