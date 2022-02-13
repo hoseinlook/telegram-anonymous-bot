@@ -4,11 +4,12 @@ from sqlalchemy import create_engine, Integer, Column, String, DateTime, Foreign
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from . import config
+from sqlalchemy.dialects.postgresql.base import PGDialect
 
 pymysql.install_as_MySQLdb()
 
-engine = create_engine(F'mysql://{config.MYSQL_USER}:{config.MYSQL_PASSWORD}@{config.MYSQL_HOST}:{config.MYSQL_PORT}/{config.MYSQL_DB}',
-                       isolation_level="READ UNCOMMITTED",
+PGDialect._get_server_version_info = lambda *args: (9, 2)
+engine = create_engine(F'{config.SQL_TYPE}://{config.SQL_USER}:{config.SQL_PASSWORD}@{config.SQL_HOST}:{config.SQL_PORT}/{config.SQL_DB}',
                        )
 
 # use session_factory() to get a new Session
@@ -22,6 +23,9 @@ def session_factory():
     return _SessionFactory()
 
 
+session_factory()
+
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -33,7 +37,7 @@ class User(Base):
     access_hash = Column(String(length=100))
     first_name = Column(String(length=100))
     last_name = Column(String(length=100))
-    status = Column(Enum(STATUS.ACTIVE, STATUS.DEACTIVATE), nullable=False)
+    status = Column(Enum(STATUS.ACTIVE, STATUS.DEACTIVATE, name="status_s"), nullable=False)
     username = Column(String(length=100))
     created_at = Column(DateTime(), default=datetime.now)
 
@@ -43,7 +47,7 @@ class User(Base):
         self.last_name = last_name
         self.first_name = first_name
         self.username = username
-        self.access_hash = access_hash
+        self.access_hash = str(access_hash)
         self.created_at = created_at
 
     def __repr__(self):
@@ -67,7 +71,7 @@ class Message(Base):
     to_user_id = Column(Integer, ForeignKey(User.id))
     msg_id = Column(Integer, nullable=True, default=None)
     message = Column(Text(), nullable=True)
-    status = Column(Enum(STATUS.CREATED, STATUS.SENT, STATUS.FAILED, STATUS.SEEN), default=STATUS.CREATED)
+    status = Column(Enum(STATUS.CREATED, STATUS.SENT, STATUS.FAILED, STATUS.SEEN, name='status_m'), default=STATUS.CREATED)
     created_at = Column(DateTime(), default=datetime.now, nullable=False)
 
     def __init__(self, from_user_id: int, to_user_id: int, message: str, msg_id: int, created_at: datetime = None):

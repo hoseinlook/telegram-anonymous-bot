@@ -11,8 +11,12 @@ from .repository import UserRepository, MessageRepository, ActionRepository
 user_repository = UserRepository()
 message_repository = MessageRepository()
 info_log.log(level=TELEGRAM_LOG_LEVEL, msg='BOT CONNECTED TO SQLDB ...')
-client = TelegramClient(str(PATH_SESSION.joinpath('bot')), API_ID, API_KEY, proxy=PROXY, connection_retries=100000).start(
-    bot_token=BOT_TOKEN)
+if PROXY is not None:
+    client = TelegramClient(str(PATH_SESSION.joinpath('bot')), API_ID, API_KEY, proxy=PROXY, connection_retries=100000).start(
+        bot_token=BOT_TOKEN)
+else:
+    client = TelegramClient(str(PATH_SESSION.joinpath('bot')), API_ID, API_KEY, connection_retries=100000).start(
+        bot_token=BOT_TOKEN)
 
 info_log.log(level=TELEGRAM_LOG_LEVEL, msg='BOT CONNECTED TO TELEGRAM ...')
 
