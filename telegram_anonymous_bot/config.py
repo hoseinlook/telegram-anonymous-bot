@@ -22,10 +22,10 @@ API_ID = int(getenv('API_ID'))
 API_KEY = getenv('API_KEY')
 
 # proxy for connecting
-PROXY = (getenv('PROXY_PROTOCOL', 'socks5'), getenv('PROXY_HOST', 'localhost'), int(getenv('PROXY_PORT', 9050)))
+PROXY = (getenv('PROXY_PROTOCOL', 'socks5'), getenv('PROXY_HOST', None), int(getenv('PROXY_PORT', 9050)))
 if None in PROXY:
     PROXY = None
-
+print('PROXY is ', PROXY)
 # sql
 SQL_DB = getenv('SQL_DATABASE', 'database')
 SQL_USER = getenv('SQL_USER', 'user')
