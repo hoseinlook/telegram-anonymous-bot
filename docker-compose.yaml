@@ -5,6 +5,8 @@ services:
     restart: always
     build:
       context: .
+      args:
+        REPOSITORY: ${REPOSITORY}
     volumes:
       - .env:/code/.env
       - ./storage:/code/storage
@@ -25,19 +27,19 @@ services:
   torproxy:
     restart: always
     deploy:
-      replicas: 5
-    image: dperson/torproxy
-    ports:
-      - "8118:8118"
+      replicas: 1
+    image: ${REPOSITORY:-docker.io}/dperson/torproxy
+#    ports:
+#      - "8118:8118"
   #    - "9050:9050"
     networks:
       - backend
 
 
   mysql:
-    image: mysql:8.0
+    image: ${REPOSITORY:-docker.io}/library/mysql:8.0
     container_name: telegram_anonymous_bot_mysql
-    hostname: telegram_anonymous_bot_mysql
+    hostname: mysql
     restart: always
     env_file:
       - .env
@@ -66,7 +68,7 @@ services:
 
   phpmyadmin:
     restart: always
-    image: phpmyadmin:latest
+    image: ${REPOSITORY:-docker.io}/library/phpmyadmin:latest
     container_name: telegram_anonymous_bot_phpmyadmin
     hostname: telegram_anonymous_bot_phpmyadmin
     depends_on:
@@ -84,6 +86,35 @@ services:
     networks:
       - backend
 
+  sqlpad:
+    image: ${REPOSITORY:-docker.io}/sqlpad/sqlpad:5.6.0
+    hostname: 'sqlpad'
+    depends_on:
+      - 'mysql'
+    ports:
+      - '3000:3000'
+    environment:
+      SQLPAD_ADMIN: 'admin@sqlpad.com'
+      SQLPAD_ADMIN_PASSWORD: 'admin'
+      SQLPAD_APP_LOG_LEVEL: debug
+      SQLPAD_WEB_LOG_LEVEL: warn
+      SQLPAD_SEED_DATA_PATH: /etc/sqlpad/seed-data
+      SQLPAD_BACKEND_DB_URI: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+      SQLPAD_SESSION_STORE: 'database'
+      SQLPAD_DB_PATH: '/var/lib/sqlpad'
+      SQLPAD_DB_IN_MEMORY: 'false'
+      SQLPAD_QUERY_RESULT_STORE: 'database'
+      # This adds a pre-configured connection to point to the database
+      # used as the backend for SQLPad itself
+      SQLPAD_CONNECTIONS__mysqld__name: 'MariaDB Demo'
+      SQLPAD_CONNECTIONS__mysqld__driver: mysql2
+      SQLPAD_CONNECTIONS__mysqld__host: mysql
+      SQLPAD_CONNECTIONS__mysqld__port: 3306
+      SQLPAD_CONNECTIONS__mysqld__database: ${MYSQL_DATABASE}
+      SQLPAD_CONNECTIONS__mysqld__username: ${MYSQL_USER}
+      SQLPAD_CONNECTIONS__mysqld__password: ${MYSQL_PASSWORD}
+    networks:
+      - backend
 
 networks:
   backend:

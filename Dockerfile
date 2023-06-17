@@ -1,4 +1,6 @@
-FROM python:3.8
+ARG REPOSITORY=docker.io
+
+FROM ${REPOSITORY}/library/python:3.8
 
 WORKDIR /code
 

@@ -51,12 +51,14 @@ docker services:
 + tor
 + mysql 
 + phpmyadmin
++ sqlpad
 
 # deploy with docker
 ```bash
 docker-compose up -d
 ```
 phpmyadmin default port is 81 you can change it in .env
+sqlpad default port is 3000 .
 
 
 
