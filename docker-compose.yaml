@@ -87,6 +87,7 @@ services:
       - backend
 
   sqlpad:
+    restart: always
     image: ${REPOSITORY:-docker.io}/sqlpad/sqlpad:5.6.0
     hostname: 'sqlpad'
     depends_on:
@@ -94,7 +95,7 @@ services:
     ports:
       - '3000:3000'
     environment:
-      SQLPAD_ADMIN: 'admin@sqlpad.com'
+      SQLPAD_ADMIN: 'admin'
       SQLPAD_ADMIN_PASSWORD: 'admin'
       SQLPAD_APP_LOG_LEVEL: debug
       SQLPAD_WEB_LOG_LEVEL: warn
@@ -106,7 +107,7 @@ services:
       SQLPAD_QUERY_RESULT_STORE: 'database'
       # This adds a pre-configured connection to point to the database
       # used as the backend for SQLPad itself
-      SQLPAD_CONNECTIONS__mysqld__name: 'MariaDB Demo'
+      SQLPAD_CONNECTIONS__mysqld__name: 'MYSQL_BOT_DB'
       SQLPAD_CONNECTIONS__mysqld__driver: mysql2
       SQLPAD_CONNECTIONS__mysqld__host: mysql
       SQLPAD_CONNECTIONS__mysqld__port: 3306
