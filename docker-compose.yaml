@@ -86,36 +86,36 @@ services:
     networks:
       - backend
 
-  sqlpad:
-    restart: always
-    image: ${REPOSITORY:-docker.io}/sqlpad/sqlpad:5.6.0
-    hostname: 'sqlpad'
-    depends_on:
-      - 'mysql'
-    ports:
-      - '3000:3000'
-    environment:
-      SQLPAD_ADMIN: 'admin'
-      SQLPAD_ADMIN_PASSWORD: 'admin'
-      SQLPAD_APP_LOG_LEVEL: debug
-      SQLPAD_WEB_LOG_LEVEL: warn
-      SQLPAD_SEED_DATA_PATH: /etc/sqlpad/seed-data
-      SQLPAD_BACKEND_DB_URI: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
-      SQLPAD_SESSION_STORE: 'database'
-      SQLPAD_DB_PATH: '/var/lib/sqlpad'
-      SQLPAD_DB_IN_MEMORY: 'false'
-      SQLPAD_QUERY_RESULT_STORE: 'database'
-      # This adds a pre-configured connection to point to the database
-      # used as the backend for SQLPad itself
-      SQLPAD_CONNECTIONS__mysqld__name: 'MYSQL_BOT_DB'
-      SQLPAD_CONNECTIONS__mysqld__driver: mysql2
-      SQLPAD_CONNECTIONS__mysqld__host: mysql
-      SQLPAD_CONNECTIONS__mysqld__port: 3306
-      SQLPAD_CONNECTIONS__mysqld__database: ${MYSQL_DATABASE}
-      SQLPAD_CONNECTIONS__mysqld__username: ${MYSQL_USER}
-      SQLPAD_CONNECTIONS__mysqld__password: ${MYSQL_PASSWORD}
-    networks:
-      - backend
+#  sqlpad:
+#    restart: always
+#    image: ${REPOSITORY:-docker.io}/sqlpad/sqlpad:5.6.0
+#    hostname: 'sqlpad'
+#    depends_on:
+#      - 'mysql'
+#    ports:
+#      - '3000:3000'
+#    environment:
+#      SQLPAD_ADMIN: 'admin'
+#      SQLPAD_ADMIN_PASSWORD: 'admin'
+#      SQLPAD_APP_LOG_LEVEL: debug
+#      SQLPAD_WEB_LOG_LEVEL: warn
+#      SQLPAD_SEED_DATA_PATH: /etc/sqlpad/seed-data
+#      SQLPAD_BACKEND_DB_URI: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+#      SQLPAD_SESSION_STORE: 'database'
+#      SQLPAD_DB_PATH: '/var/lib/sqlpad'
+#      SQLPAD_DB_IN_MEMORY: 'false'
+#      SQLPAD_QUERY_RESULT_STORE: 'database'
+#      # This adds a pre-configured connection to point to the database
+#      # used as the backend for SQLPad itself
+#      SQLPAD_CONNECTIONS__mysqld__name: 'MYSQL_BOT_DB'
+#      SQLPAD_CONNECTIONS__mysqld__driver: mysql2
+#      SQLPAD_CONNECTIONS__mysqld__host: mysql
+#      SQLPAD_CONNECTIONS__mysqld__port: 3306
+#      SQLPAD_CONNECTIONS__mysqld__database: ${MYSQL_DATABASE}
+#      SQLPAD_CONNECTIONS__mysqld__username: ${MYSQL_USER}
+#      SQLPAD_CONNECTIONS__mysqld__password: ${MYSQL_PASSWORD}
+#    networks:
+#      - backend
 
 networks:
   backend:
