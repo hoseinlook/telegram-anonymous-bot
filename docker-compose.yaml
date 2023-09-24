@@ -35,6 +35,35 @@ services:
     networks:
       - backend
 
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      # To connect to the PostgreSQL database run the following command
+      # psql -h localhost -p 15432 -U admin -d mydb
+      - POSTGRES_USER=${MYSQL_USER}
+      - POSTGRES_PASSWORD=${MYSQL_PASSWORD}
+      - POSTGRES_DB=${MYSQL_DATABASE}
+    ports:
+      - "15432:5432"
+    volumes:
+      # Pass volume named mysql-data to mysql container
+      - "./postgresql-data:/var/lib/postgresql/data"
+    networks:
+      - backend
+
+  dbadmin:
+    depends_on:
+      - postgres
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "16543:80"
+    networks:
+      - backend
 
   mysql:
     image: ${REPOSITORY:-docker.io}/library/mysql:8.0
