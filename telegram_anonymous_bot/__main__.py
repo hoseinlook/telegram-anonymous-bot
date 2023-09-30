@@ -144,7 +144,7 @@ async def handel_callback(event):
         sender_message_orm = MessageRepository().get_with_message_id(message_orm_id)
 
         async with client.conversation(event.chat) as conv:
-            await conv.send_message(MESSAGES.WAITING_TO_ANSWER, buttons=[Button.text(COMMANDS.CANCEL_CONNECT, resize=True, single_use=True)])
+            await conv.send_message(MESSAGES.WAITING_TO_ANSWER, buttons=[Button.text(COMMANDS.CANCEL_CONNECT, resize=True, single_use=True)], reply_to=sender_message_orm.msg_id)
             response = await conv.get_response()
             if response.message == COMMANDS.CANCEL_CONNECT: return
             new_message = Message(from_user_id=sender_message_orm.to_user_id, to_user_id=sender_message_orm.from_user_id, message=response.message, msg_id=response.id)
