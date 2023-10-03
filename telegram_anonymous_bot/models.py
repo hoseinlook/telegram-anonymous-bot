@@ -1,10 +1,12 @@
 from datetime import datetime
+
 import pymysql
 from sqlalchemy import create_engine, Integer, Column, String, DateTime, ForeignKey, Text, Enum
+from sqlalchemy.dialects.postgresql.base import PGDialect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
 from . import config
-from sqlalchemy.dialects.postgresql.base import PGDialect
 
 pymysql.install_as_MySQLdb()
 
@@ -70,20 +72,22 @@ class Message(Base):
     from_user_id = Column(Integer, ForeignKey(User.id))
     to_user_id = Column(Integer, ForeignKey(User.id))
     msg_id = Column(Integer, nullable=True, default=None)
+    msg_from_bot_id = Column(Integer, nullable=True, default=None)
     message = Column(Text(), nullable=True)
     status = Column(Enum(STATUS.CREATED, STATUS.SENT, STATUS.FAILED, STATUS.SEEN, name='status_m'), default=STATUS.CREATED)
     created_at = Column(DateTime(), default=datetime.now, nullable=False)
 
-    def __init__(self, from_user_id: int, to_user_id: int, message: str, msg_id: int, created_at: datetime = None):
+    def __init__(self, from_user_id: int, to_user_id: int, message: str, msg_id: int, created_at: datetime = None, msg_from_bot_id=None):
         self.id = None
         self.from_user_id = from_user_id
         self.to_user_id = to_user_id
         self.message = message
         self.created_at = created_at
         self.msg_id = msg_id
+        self.msg_from_bot_id = msg_from_bot_id
 
     def __repr__(self):
-        return F"<msg-id={self.id} , from={self.from_user_id}-->to={self.to_user_id}>"
+        return F"<msgORM-id={self.id} msg_source_id={self.msg_id} msg_from_bot_id={self.msg_from_bot_id} , from={self.from_user_id}-->to={self.to_user_id}>"
 
 
 class Action(Base):

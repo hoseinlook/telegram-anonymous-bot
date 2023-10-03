@@ -127,10 +127,11 @@ async def get_new_messages(event):
         the_message = await  client.get_messages(sender_entity, ids=message_orm.msg_id)
         if len(the_message.message) < 10:
             the_message.message = F"‌                                                 ‌ ‌‌‌    ‌‌\n{the_message.message}"
-        await event.respond(the_message, buttons=[
+        message_from_bot = await event.respond(the_message, buttons=[
             [Button.inline(MESSAGES.BTN_BLOCK, data=1), Button.inline(MESSAGES.BTN_ANSWER, data=TEMPLATES_MESSAGES.RESPOND_TO_MESSAGE(message_orm.id))],
         ])
-
+        print("DEBUGG" , message_from_bot)
+        message_orm.msg_from_bot_id= message_from_bot.id
         message_orm.status = Message.STATUS.SEEN
         MessageRepository().commit()
 
@@ -143,8 +144,10 @@ async def handel_callback(event):
         message_orm_id = int(body.split('_')[-1])
         sender_message_orm = MessageRepository().get_with_message_id(message_orm_id)
 
+        info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'DEBUG-{sender_message_orm}')
+
         async with client.conversation(event.chat) as conv:
-            await conv.send_message(MESSAGES.WAITING_TO_ANSWER, buttons=[Button.text(COMMANDS.CANCEL_CONNECT, resize=True, single_use=True)], reply_to=sender_message_orm.msg_id)
+            await conv.send_message(MESSAGES.WAITING_TO_ANSWER, buttons=[Button.text(COMMANDS.CANCEL_CONNECT, resize=True, single_use=True)], reply_to=sender_message_orm.msg_from_bot_id)
             response = await conv.get_response()
             if response.message == COMMANDS.CANCEL_CONNECT: return
             new_message = Message(from_user_id=sender_message_orm.to_user_id, to_user_id=sender_message_orm.from_user_id, message=response.message, msg_id=response.id)

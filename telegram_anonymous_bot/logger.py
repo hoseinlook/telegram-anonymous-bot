@@ -3,7 +3,7 @@ import logging.handlers
 from .config import PATH_STORAGE
 
 FORMAT = '%(asctime)s ==>%(message)s'
-logging.basicConfig(format=FORMAT, level=logging.DEBUG,
+logging.basicConfig(format=FORMAT, level=logging.INFO,
                     datefmt='%Y-%m-%d:%H-%M-%S')
 # error configs
 log_file = PATH_STORAGE.joinpath('error_logs.txt')
