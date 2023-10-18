@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pymysql
-from sqlalchemy import create_engine, Integer, Column, String, DateTime, ForeignKey, Text, Enum
+from sqlalchemy import create_engine, Column, String, DateTime, ForeignKey, Text, Enum,BIGINT
 from sqlalchemy.dialects.postgresql.base import PGDialect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -35,7 +35,7 @@ class User(Base):
         ACTIVE = 'active'
         DEACTIVATE = 'deactivate'
 
-    id = Column(Integer(), primary_key=True, autoincrement=False)
+    id = Column(BIGINT(), primary_key=True, autoincrement=False)
     access_hash = Column(String(length=100))
     first_name = Column(String(length=100))
     last_name = Column(String(length=100))
@@ -68,11 +68,11 @@ class Message(Base):
         SEEN = "seen"
         FAILED = "failed"
 
-    id = Column(Integer(), primary_key=True, autoincrement=True, nullable=False)
-    from_user_id = Column(Integer, ForeignKey(User.id))
-    to_user_id = Column(Integer, ForeignKey(User.id))
-    msg_id = Column(Integer, nullable=True, default=None)
-    msg_from_bot_id = Column(Integer, nullable=True, default=None)
+    id = Column(BIGINT(), primary_key=True, autoincrement=True, nullable=False)
+    from_user_id = Column(BIGINT, ForeignKey(User.id))
+    to_user_id = Column(BIGINT, ForeignKey(User.id))
+    msg_id = Column(BIGINT, nullable=True, default=None)
+    msg_from_bot_id = Column(BIGINT, nullable=True, default=None)
     message = Column(Text(), nullable=True)
     status = Column(Enum(STATUS.CREATED, STATUS.SENT, STATUS.FAILED, STATUS.SEEN, name='status_m'), default=STATUS.CREATED)
     created_at = Column(DateTime(), default=datetime.now, nullable=False)
@@ -93,10 +93,10 @@ class Message(Base):
 class Action(Base):
     __tablename__ = 'actions'
 
-    id = Column(Integer(), primary_key=True, autoincrement=True, nullable=False)
-    user_id = Column(Integer, ForeignKey(User.id))
+    id = Column(BIGINT(), primary_key=True, autoincrement=True, nullable=False)
+    user_id = Column(BIGINT, ForeignKey(User.id))
     action = Column(Text(), nullable=False)
-    msg_id = Column(Integer(), nullable=False)
+    msg_id = Column(BIGINT(), nullable=False)
     created_at = Column(DateTime(), default=datetime.now, nullable=False)
 
     def __init__(self, user_id: int, action: str, msg_id: int):
