@@ -55,7 +55,7 @@ async def start(event):
 async def do_connection(event, the_user=None):
     async def loop_to_get_target(conv) -> Union[User, None]:
         while True:
-            response = await conv.get_response()
+            response = await conv.get_response(timeout=600)
             if response.message == COMMANDS.CANCEL_CONNECT: raise CanceledError()
             if response.message.startswith('@'):
                 username = re.findall('^@[^\s]+', response.message)[0]
@@ -85,7 +85,7 @@ async def do_connection(event, the_user=None):
                 return
 
             await conv.send_message(TEMPLATES_MESSAGES.READY_TO_SEND_MESSAGE(the_user.first_name))
-            response = await conv.get_response()
+            response = await conv.get_response(timeout=600)
             if response.message == COMMANDS.CANCEL_CONNECT: raise CanceledError()
             new_message = Message(from_user_id=event.chat.id, to_user_id=the_user.id, message=response.message, msg_id=response.id)
             MessageRepository().insert(new_message)
