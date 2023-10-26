@@ -1,7 +1,9 @@
 import re
 from typing import Union, List
+
 import telethon.tl.types
 from telethon import TelegramClient, events, Button
+
 from .config import API_KEY, API_ID, BOT_TOKEN, PROXY, PATH_SESSION, COMMANDS, MESSAGES, TEMPLATES_MESSAGES
 from .exceptions import CanceledError
 from .logger import error_logger, info_log, TELEGRAM_LOG_LEVEL
@@ -72,7 +74,7 @@ async def do_connection(event, the_user=None):
             return user
 
     info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'{event.chat.first_name} clicked {COMMANDS.CONNECT}')
-    async with client.conversation(event.chat) as conv:
+    async with client.conversation(event.chat, timeout=600, total_timeout=600) as conv:
         await conv.send_message(MESSAGES.AFTER_CONNECT_COMMAND, buttons=[Button.text(COMMANDS.CANCEL_CONNECT, resize=True, single_use=True)])
 
         try:
@@ -130,8 +132,8 @@ async def get_new_messages(event):
         message_from_bot = await event.respond(the_message, buttons=[
             [Button.inline(MESSAGES.BTN_BLOCK, data=1), Button.inline(MESSAGES.BTN_ANSWER, data=TEMPLATES_MESSAGES.RESPOND_TO_MESSAGE(message_orm.id))],
         ])
-        print("DEBUGG" , message_from_bot)
-        message_orm.msg_from_bot_id= message_from_bot.id
+        print("DEBUGG", message_from_bot)
+        message_orm.msg_from_bot_id = message_from_bot.id
         message_orm.status = Message.STATUS.SEEN
         MessageRepository().commit()
 
@@ -146,7 +148,7 @@ async def handel_callback(event):
 
         info_log.log(level=TELEGRAM_LOG_LEVEL, msg=f'DEBUG-{sender_message_orm}')
 
-        async with client.conversation(event.chat) as conv:
+        async with client.conversation(event.chat, timeout=600, total_timeout=600) as conv:
             await conv.send_message(MESSAGES.WAITING_TO_ANSWER, buttons=[Button.text(COMMANDS.CANCEL_CONNECT, resize=True, single_use=True)], reply_to=sender_message_orm.msg_from_bot_id)
             response = await conv.get_response()
             if response.message == COMMANDS.CANCEL_CONNECT: return
